@@ -2,24 +2,26 @@ import React from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as R from "ramda";
-import faker from "faker";
-import ShortUniqueId from "short-unique-id";
-
-const uid = new ShortUniqueId({ length: 6 });
-
-const fakeData = R.map(
-  () => ({
-    id: uid(),
-    coordinate: [
-      faker.address.latitude(54.5394, 54.4024),
-      faker.address.longitude(18.5432, 18.4783),
-    ],
-  }),
-  R.range(0, 100)
-);
 
 function App() {
   const mapRef = React.useRef();
+
+  const [points, setPoints] = React.useState([]);
+
+  React.useEffect(() => {
+    const sse = new EventSource("http://localhost:3002/points");
+
+    sse.onmessage = (e) => {
+      setPoints(JSON.parse(e.data));
+    };
+
+    sse.onerror = () => {
+      sse.close();
+    };
+    return () => {
+      sse.close();
+    };
+  }, []);
 
   return (
     <div className="App">
@@ -36,12 +38,12 @@ function App() {
         />
         <MarkerClusterGroup>
           {R.map(
-            ({ id, coordinate }) => (
-              <Marker position={coordinate} key={id}>
+            ({ id, position }) => (
+              <Marker position={position} key={id}>
                 <Popup>My ID: {id}</Popup>
               </Marker>
             ),
-            fakeData
+            points
           )}
         </MarkerClusterGroup>
       </MapContainer>
