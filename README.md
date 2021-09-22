@@ -9,6 +9,10 @@ In the project directory, you can run:
 Runs the app and the mock server in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
+### `npm test`
+
+Launches the test runner.
+
 ## If you want to start the app and the server separately:
 
 ### `npm start`
