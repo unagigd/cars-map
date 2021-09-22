@@ -11,7 +11,7 @@ const styles = {
   }),
 };
 
-export default function SearchableListOfPoints({ points, onPointClick }) {
+export default function SearchableListOfPoints({ points = [], onPointClick }) {
   const [search, setSearch] = React.useState("");
 
   const handleSearch = (e) => {
@@ -32,29 +32,34 @@ export default function SearchableListOfPoints({ points, onPointClick }) {
         className="form-control"
         onChange={handleSearch}
         placeholder="search for ID"
+        data-testid="search-input"
       />
-      <ul className="mt-1 list-group" style={styles.list(isXlDevice)}>
-        {R.map(
-          ({ id, position }) => (
-            <li
-              key={id}
-              className="list-group-item d-flex justify-content-between align-items-center"
-            >
-              <span className="text-nowrap">ID: {id}</span>
-              <span className="mx-3 badge bg-secondary rounded-pill text-nowrap">
-                {position[0]}, {position[1]}
-              </span>
-              <button
-                onClick={() => onPointClick(position)}
-                className="btn btn-primary btn-sm text-nowrap"
+      {!R.isEmpty(filteredPoints) ? (
+        <ul className="mt-1 list-group" style={styles.list(isXlDevice)}>
+          {R.map(
+            ({ id, position }) => (
+              <li
+                key={id}
+                className="list-group-item d-flex justify-content-between align-items-center"
               >
-                View position
-              </button>
-            </li>
-          ),
-          filteredPoints
-        )}
-      </ul>
+                <span className="text-nowrap">ID: {id}</span>
+                <span className="mx-3 badge bg-secondary rounded-pill text-nowrap">
+                  {position[0]}, {position[1]}
+                </span>
+                <button
+                  onClick={() => onPointClick(position)}
+                  className="btn btn-primary btn-sm text-nowrap"
+                >
+                  View position
+                </button>
+              </li>
+            ),
+            filteredPoints
+          )}
+        </ul>
+      ) : (
+        <div data-testid="empty-list-msg">No points to display</div>
+      )}
     </>
   );
 }
