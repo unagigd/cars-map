@@ -3,32 +3,21 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import * as R from "ramda";
 
+import useMovingPoints from "./useMovingPoints";
+
 function App() {
   const mapRef = React.useRef();
 
   const [points, setPoints] = React.useState([]);
 
-  React.useEffect(() => {
-    const sse = new EventSource("http://localhost:3002/points");
-
-    sse.onmessage = (e) => {
-      setPoints(JSON.parse(e.data));
-    };
-
-    sse.onerror = () => {
-      sse.close();
-    };
-    return () => {
-      sse.close();
-    };
-  }, []);
+  useMovingPoints(setPoints);
 
   return (
     <div className="App">
       <MapContainer
         center={[54.410819542025166, 18.574078308688073]}
         zoom={11}
-        scrollWheelZoom={false}
+        scrollWheelZoom
         style={{ width: "640px", height: "480px" }}
         whenCreated={(map) => (mapRef.current = map)}
       >

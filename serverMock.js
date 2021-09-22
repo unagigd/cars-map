@@ -8,23 +8,27 @@ const port = 3002;
 
 const uid = new ShortUniqueId({ length: 6 });
 
-const fakeData = R.map(
-  () => ({
-    id: uid(),
-    position: [
-      faker.address.latitude(54.5394, 54.4024),
-      faker.address.longitude(18.5432, 18.4783),
-    ],
-  }),
-  R.range(0, 10)
-);
+const fakeData = (maxLat, minLat, maxLng, minLng, length = 100) =>
+  R.map(
+    () => ({
+      id: uid(),
+      position: [
+        faker.address.latitude(maxLat, minLat),
+        faker.address.longitude(maxLng, minLng),
+      ],
+    }),
+    R.range(0, length)
+  );
+
+const gdyniaSopot = fakeData(54.5394, 54.4024, 18.5432, 18.4783);
+const gdansk = fakeData(54.3954, 54.3025, 18.6755, 18.4392);
 
 function movePoints(points) {
   const positionLens = R.lensProp("position");
 
   return R.map(
     R.over(positionLens, (position) =>
-      faker.address.nearbyGPSCoordinate(position, 0.1, true)
+      faker.address.nearbyGPSCoordinate(position, 0.05, true)
     ),
     points
   );
@@ -39,9 +43,9 @@ app.get("/points", (req, res) => {
   });
   res.flushHeaders();
 
-  let points = fakeData;
+  let points = R.concat(gdyniaSopot, gdansk);
 
-  res.write(`data: ${JSON.stringify(fakeData)}\n\n`);
+  res.write(`data: ${JSON.stringify(points)}\n\n`);
 
   setInterval(() => {
     points = movePoints(points);
